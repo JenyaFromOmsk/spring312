@@ -38,18 +38,12 @@ public class UserController {
     }
 
     @GetMapping(value = "/admin")
-    public String listUsers(Model model) {
+    public String listUsers(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
         model.addAttribute("allUsers", userService.listUsers());
+        model.addAttribute("allRoles", roleService.getAllRoles());
         return "allUsers";
     }
-
-    @GetMapping(value = "/admin/add")
-    public String newUser(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("roles", roleService.getAllRoles());
-        return "addUser";
-    }
-
 
     @PostMapping(value = "/admin/add-user")
     public String addUser(@ModelAttribute User user, @RequestParam(value = "checkBoxRoles") String[] checkBoxRoles) {
@@ -62,14 +56,7 @@ public class UserController {
         return "redirect:/admin";
     }
 
-    @GetMapping(value = "/edit/{id}")
-    public String editUserForm(@PathVariable("id") long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        model.addAttribute("roles", roleService.getAllRoles());
-        return "editUser";
-    }
-
-    @PostMapping(value = "/edit")
+    @PostMapping(value = "/admin/edit/{id}")
     public String editUser(@ModelAttribute User user, @RequestParam(value = "checkBoxRoles") String[] checkBoxRoles) {
         Set<Role> set = new HashSet<>();
         for (String roles : checkBoxRoles) {
@@ -80,7 +67,7 @@ public class UserController {
         return "redirect:/admin";
     }
 
-    @GetMapping(value = "/remove/{id}")
+    @GetMapping(value = "/admin/remove/{id}")
     public String removeUser(@PathVariable("id") long id) {
         userService.deleteUserById(id);
         return "redirect:/admin";
